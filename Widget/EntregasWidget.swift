@@ -2,6 +2,90 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 
+// MARK: - Widget-local storage (no App Group needed)
+
+struct WidgetStore {
+    private static let completedKey = "widget_completed_events"
+    private static let cachedKey = "widget_cached_events"
+    private static let urlKey = "widget_calendar_url"
+
+    private static var defaults: UserDefaults { .standard }
+
+    static var calendarURL: String? {
+        get {
+            defaults.string(forKey: urlKey)
+                ?? UserDefaults(suiteName: DataStore.appGroupID)?.string(forKey: "calendarURL")
+        }
+        set { defaults.set(newValue, forKey: urlKey) }
+    }
+
+    static var completedEventIDs: Set<String> {
+        get { Set(defaults.stringArray(forKey: completedKey) ?? []) }
+        set { defaults.set(Array(newValue), forKey: completedKey) }
+    }
+
+    static func toggleCompletion(for eventID: String) {
+        var completed = completedEventIDs
+        if completed.contains(eventID) {
+            completed.remove(eventID)
+        } else {
+            completed.insert(eventID)
+        }
+        completedEventIDs = completed
+    }
+
+    static func saveCachedEvents(_ events: [CalendarEvent]) {
+        if let data = try? JSONEncoder().encode(events) {
+            defaults.set(data, forKey: cachedKey)
+        }
+    }
+
+    static func loadCachedEvents() -> [CalendarEvent] {
+        guard let data = defaults.data(forKey: cachedKey),
+              let events = try? JSONDecoder().decode([CalendarEvent].self, from: data) else {
+            return []
+        }
+        return events
+    }
+
+    static func fetchEvents() async -> [CalendarEvent] {
+        guard let urlString = calendarURL, let url = URL(string: urlString) else {
+            return loadCachedEvents()
+        }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let icsString = String(data: data, encoding: .utf8) {
+                let events = ICSParser.parse(icsString)
+                saveCachedEvents(events)
+                return events
+            }
+        } catch {}
+        return loadCachedEvents()
+    }
+}
+
+// MARK: - Configure URL Intent
+
+struct ConfigureURLIntent: AppIntent {
+    static var title: LocalizedStringResource = "Configurar Agenda"
+    static var description = IntentDescription("Configure o link .ics da sua agenda")
+
+    @Parameter(title: "URL da Agenda (.ics)")
+    var calendarURL: String
+
+    init() {}
+
+    init(url: String) {
+        self.calendarURL = url
+    }
+
+    func perform() async throws -> some IntentResult {
+        WidgetStore.calendarURL = calendarURL
+        _ = await WidgetStore.fetchEvents()
+        return .result()
+    }
+}
+
 // MARK: - Toggle Intent
 
 struct ToggleEventIntent: AppIntent {
@@ -17,7 +101,7 @@ struct ToggleEventIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult {
-        DataStore.toggleCompletion(for: eventID)
+        WidgetStore.toggleCompletion(for: eventID)
         return .result()
     }
 }
@@ -29,6 +113,7 @@ struct EntregasEntry: TimelineEntry {
     let todayEvents: [CalendarEvent]
     let tomorrowEvents: [CalendarEvent]
     let completedIDs: Set<String>
+    let hasURL: Bool
 }
 
 struct EntregasTimelineProvider: TimelineProvider {
@@ -42,29 +127,32 @@ struct EntregasTimelineProvider: TimelineProvider {
             tomorrowEvents: [
                 CalendarEvent(id: "3", title: "Seminário de Física", startDate: Date(), endDate: Date())
             ],
-            completedIDs: ["1"]
+            completedIDs: ["1"],
+            hasURL: true
         )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (EntregasEntry) -> Void) {
-        let events = DataStore.loadCachedEvents()
+        let events = WidgetStore.loadCachedEvents()
         let entry = EntregasEntry(
             date: Date(),
             todayEvents: DataStore.eventsForToday(from: events),
             tomorrowEvents: DataStore.eventsForTomorrow(from: events),
-            completedIDs: DataStore.completedEventIDs
+            completedIDs: WidgetStore.completedEventIDs,
+            hasURL: WidgetStore.calendarURL != nil
         )
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntregasEntry>) -> Void) {
         Task {
-            let events = await DataStore.fetchAndCacheEvents()
+            let events = await WidgetStore.fetchEvents()
             let entry = EntregasEntry(
                 date: Date(),
                 todayEvents: DataStore.eventsForToday(from: events),
                 tomorrowEvents: DataStore.eventsForTomorrow(from: events),
-                completedIDs: DataStore.completedEventIDs
+                completedIDs: WidgetStore.completedEventIDs,
+                hasURL: WidgetStore.calendarURL != nil
             )
             let nextUpdate = Calendar.current.date(byAdding: .minute, value: 10, to: Date())!
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
@@ -145,30 +233,45 @@ struct EntregasWidgetView: View {
     let entry: EntregasEntry
 
     var body: some View {
-        HStack(spacing: 0) {
-            WidgetColumnView(
-                title: "Hoje",
-                events: entry.todayEvents,
-                completedIDs: entry.completedIDs
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
+        if !entry.hasURL {
+            VStack(spacing: 8) {
+                Image(systemName: "calendar.badge.plus")
+                    .font(.system(size: 28))
+                    .foregroundColor(.gray)
+                Text("Abra o app Entregas\ne cole o link da agenda")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+            .containerBackground(for: .widget) {
+                Color(red: 0.1, green: 0.1, blue: 0.1)
+            }
+        } else {
+            HStack(spacing: 0) {
+                WidgetColumnView(
+                    title: "Hoje",
+                    events: entry.todayEvents,
+                    completedIDs: entry.completedIDs
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-            Rectangle()
-                .fill(Color.white.opacity(0.15))
-                .frame(width: 1)
-                .padding(.vertical, 4)
+                Rectangle()
+                    .fill(Color.white.opacity(0.15))
+                    .frame(width: 1)
+                    .padding(.vertical, 4)
 
-            WidgetColumnView(
-                title: "Amanhã",
-                events: entry.tomorrowEvents,
-                completedIDs: entry.completedIDs
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 12)
-        }
-        .padding(16)
-        .containerBackground(for: .widget) {
-            Color(red: 0.1, green: 0.1, blue: 0.1)
+                WidgetColumnView(
+                    title: "Amanhã",
+                    events: entry.tomorrowEvents,
+                    completedIDs: entry.completedIDs
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 12)
+            }
+            .padding(16)
+            .containerBackground(for: .widget) {
+                Color(red: 0.1, green: 0.1, blue: 0.1)
+            }
         }
     }
 }

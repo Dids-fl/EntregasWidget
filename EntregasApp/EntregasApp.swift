@@ -106,6 +106,7 @@ struct ContentView: View {
         isLoading = true
         isSaved = false
         DataStore.calendarURL = calendarURL
+        UserDefaults.standard.set(calendarURL, forKey: "widget_calendar_url")
 
         Task {
             let events = await DataStore.fetchAndCacheEvents()
