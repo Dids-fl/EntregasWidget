@@ -21,7 +21,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = A5000001;
 			proxyType = 1;
-			remoteGlobalIDString = A3000002;
+			remoteGlobalIDString = A8000002;
 			remoteInfo = EntregasWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
