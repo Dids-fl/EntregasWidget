@@ -1,0 +1,401 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1000001 /* EntregasApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001; };
+		A1000002 /* ICSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010; };
+		A1000003 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000011; };
+		A1000004 /* EntregasWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020; };
+		A1000005 /* ICSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010; };
+		A1000006 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000011; };
+		A1000007 /* EntregasWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A3000002; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A4000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A5000001;
+			proxyType = 1;
+			remoteGlobalIDString = A3000002;
+			remoteInfo = EntregasWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A6000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A1000007,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A2000001 /* EntregasApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntregasApp.swift; sourceTree = "<group>"; };
+		A2000010 /* ICSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICSParser.swift; sourceTree = "<group>"; };
+		A2000011 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		A2000020 /* EntregasWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntregasWidget.swift; sourceTree = "<group>"; };
+		A3000001 /* Entregas.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Entregas.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3000002 /* EntregasWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EntregasWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000030 /* EntregasApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EntregasApp.entitlements; sourceTree = "<group>"; };
+		A2000031 /* EntregasWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EntregasWidget.entitlements; sourceTree = "<group>"; };
+		A2000040 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		A7000001 = {
+			isa = PBXGroup;
+			children = (
+				A7000002,
+				A7000003,
+				A7000004,
+				A7000005,
+			);
+			sourceTree = "<group>";
+		};
+		A7000002 /* EntregasApp */ = {
+			isa = PBXGroup;
+			children = (
+				A2000001,
+				A2000030,
+				A2000040,
+			);
+			path = EntregasApp;
+			sourceTree = "<group>";
+		};
+		A7000003 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A2000010,
+				A2000011,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		A7000004 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				A2000020,
+				A2000031,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		A7000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A3000001,
+				A3000002,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A8000001 /* Entregas */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9000001;
+			buildPhases = (
+				AA000001,
+				AB000001,
+				A6000001,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A4000002,
+			);
+			name = Entregas;
+			productName = Entregas;
+			productReference = A3000001;
+			productType = "com.apple.product-type.application";
+		};
+		A8000002 /* EntregasWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9000002;
+			buildPhases = (
+				AA000002,
+				AB000002,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EntregasWidgetExtension;
+			productName = EntregasWidgetExtension;
+			productReference = A3000002;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A5000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A8000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					A8000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A9000003;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "pt-BR";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				"pt-BR",
+			);
+			mainGroup = A7000001;
+			productRefGroup = A7000005;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A8000001,
+				A8000002,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001,
+				A1000002,
+				A1000003,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000004,
+				A1000005,
+				A1000006,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AB000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A4000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A8000002;
+			targetProxy = A4000001;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AC000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		AC000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.9;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AC000003 /* Debug - App */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = EntregasApp/EntregasApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = EntregasApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.entregas.app;
+				PRODUCT_NAME = Entregas;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AC000004 /* Release - App */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = EntregasApp/EntregasApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = EntregasApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.entregas.app;
+				PRODUCT_NAME = Entregas;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		AC000005 /* Debug - Widget */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/EntregasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = EntregasWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.entregas.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AC000006 /* Release - Widget */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/EntregasWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = EntregasWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.entregas.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A9000001 /* Build configuration list for PBXNativeTarget "Entregas" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC000003,
+				AC000004,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9000002 /* Build configuration list for PBXNativeTarget "EntregasWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC000005,
+				AC000006,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9000003 /* Build configuration list for PBXProject */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC000001,
+				AC000002,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = A5000001;
+}
