@@ -2,22 +2,23 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 
-// MARK: - Widget-local storage (no App Group needed)
+// MARK: - Widget Configuration Intent
+
+struct ConfigureEntregasIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Configurar Entregas"
+    static var description = IntentDescription("Configure o link .ics da sua agenda")
+
+    @Parameter(title: "URL da Agenda (.ics)", default: "")
+    var calendarURL: String
+}
+
+// MARK: - Local storage for completed events
 
 struct WidgetStore {
     private static let completedKey = "widget_completed_events"
     private static let cachedKey = "widget_cached_events"
-    private static let urlKey = "widget_calendar_url"
 
     private static var defaults: UserDefaults { .standard }
-
-    static var calendarURL: String? {
-        get {
-            defaults.string(forKey: urlKey)
-                ?? UserDefaults(suiteName: DataStore.appGroupID)?.string(forKey: "calendarURL")
-        }
-        set { defaults.set(newValue, forKey: urlKey) }
-    }
 
     static var completedEventIDs: Set<String> {
         get { Set(defaults.stringArray(forKey: completedKey) ?? []) }
@@ -34,55 +35,48 @@ struct WidgetStore {
         completedEventIDs = completed
     }
 
-    static func saveCachedEvents(_ events: [CalendarEvent]) {
+    static func saveCachedEvents(_ events: [CalendarEvent], for url: String) {
         if let data = try? JSONEncoder().encode(events) {
-            defaults.set(data, forKey: cachedKey)
+            defaults.set(data, forKey: cachedKey + url.hashValue.description)
         }
     }
 
-    static func loadCachedEvents() -> [CalendarEvent] {
-        guard let data = defaults.data(forKey: cachedKey),
+    static func loadCachedEvents(for url: String) -> [CalendarEvent] {
+        guard let data = defaults.data(forKey: cachedKey + url.hashValue.description),
               let events = try? JSONDecoder().decode([CalendarEvent].self, from: data) else {
             return []
         }
         return events
     }
 
-    static func fetchEvents() async -> [CalendarEvent] {
-        guard let urlString = calendarURL, let url = URL(string: urlString) else {
-            return loadCachedEvents()
-        }
+    static func fetchEvents(from urlString: String) async -> [CalendarEvent] {
+        guard !urlString.isEmpty, let url = URL(string: urlString) else { return [] }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             if let icsString = String(data: data, encoding: .utf8) {
                 let events = ICSParser.parse(icsString)
-                saveCachedEvents(events)
+                saveCachedEvents(events, for: urlString)
                 return events
             }
         } catch {}
-        return loadCachedEvents()
-    }
-}
-
-// MARK: - Configure URL Intent
-
-struct ConfigureURLIntent: AppIntent {
-    static var title: LocalizedStringResource = "Configurar Agenda"
-    static var description = IntentDescription("Configure o link .ics da sua agenda")
-
-    @Parameter(title: "URL da Agenda (.ics)")
-    var calendarURL: String
-
-    init() {}
-
-    init(url: String) {
-        self.calendarURL = url
+        return loadCachedEvents(for: urlString)
     }
 
-    func perform() async throws -> some IntentResult {
-        WidgetStore.calendarURL = calendarURL
-        _ = await WidgetStore.fetchEvents()
-        return .result()
+    static func eventsForToday(from events: [CalendarEvent]) -> [CalendarEvent] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        return events.filter { $0.startDate >= today && $0.startDate < tomorrow }
+            .sorted { $0.startDate < $1.startDate }
+    }
+
+    static func eventsForTomorrow(from events: [CalendarEvent]) -> [CalendarEvent] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let dayAfter = calendar.date(byAdding: .day, value: 2, to: today)!
+        return events.filter { $0.startDate >= tomorrow && $0.startDate < dayAfter }
+            .sorted { $0.startDate < $1.startDate }
     }
 }
 
@@ -116,7 +110,7 @@ struct EntregasEntry: TimelineEntry {
     let hasURL: Bool
 }
 
-struct EntregasTimelineProvider: TimelineProvider {
+struct EntregasTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> EntregasEntry {
         EntregasEntry(
             date: Date(),
@@ -132,32 +126,30 @@ struct EntregasTimelineProvider: TimelineProvider {
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (EntregasEntry) -> Void) {
-        let events = WidgetStore.loadCachedEvents()
-        let entry = EntregasEntry(
+    func snapshot(for configuration: ConfigureEntregasIntent, in context: Context) async -> EntregasEntry {
+        let url = configuration.calendarURL
+        let events = WidgetStore.loadCachedEvents(for: url)
+        return EntregasEntry(
             date: Date(),
-            todayEvents: DataStore.eventsForToday(from: events),
-            tomorrowEvents: DataStore.eventsForTomorrow(from: events),
+            todayEvents: WidgetStore.eventsForToday(from: events),
+            tomorrowEvents: WidgetStore.eventsForTomorrow(from: events),
             completedIDs: WidgetStore.completedEventIDs,
-            hasURL: WidgetStore.calendarURL != nil
+            hasURL: !url.isEmpty
         )
-        completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<EntregasEntry>) -> Void) {
-        Task {
-            let events = await WidgetStore.fetchEvents()
-            let entry = EntregasEntry(
-                date: Date(),
-                todayEvents: DataStore.eventsForToday(from: events),
-                tomorrowEvents: DataStore.eventsForTomorrow(from: events),
-                completedIDs: WidgetStore.completedEventIDs,
-                hasURL: WidgetStore.calendarURL != nil
-            )
-            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 10, to: Date())!
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-            completion(timeline)
-        }
+    func timeline(for configuration: ConfigureEntregasIntent, in context: Context) async -> Timeline<EntregasEntry> {
+        let url = configuration.calendarURL
+        let events = await WidgetStore.fetchEvents(from: url)
+        let entry = EntregasEntry(
+            date: Date(),
+            todayEvents: WidgetStore.eventsForToday(from: events),
+            tomorrowEvents: WidgetStore.eventsForTomorrow(from: events),
+            completedIDs: WidgetStore.completedEventIDs,
+            hasURL: !url.isEmpty
+        )
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 10, to: Date())!
+        return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 }
 
@@ -238,7 +230,7 @@ struct EntregasWidgetView: View {
                 Image(systemName: "calendar.badge.plus")
                     .font(.system(size: 28))
                     .foregroundColor(.gray)
-                Text("Abra o app Entregas\ne cole o link da agenda")
+                Text("Toque e segure o widget\n> Editar Widget\ne cole o link .ics")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
@@ -282,7 +274,7 @@ struct EntregasWidget: Widget {
     let kind: String = "EntregasWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: EntregasTimelineProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: ConfigureEntregasIntent.self, provider: EntregasTimelineProvider()) { entry in
             EntregasWidgetView(entry: entry)
         }
         .configurationDisplayName("Entregas")
