@@ -1,0 +1,41 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Build Archive
+        run: |
+          xcodebuild archive \
+            -project EntregasWidget.xcodeproj \
+            -scheme Entregas \
+            -configuration Release \
+            -archivePath build/Entregas.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Create IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/Entregas.xcarchive/Products/Applications/Entregas.app build/Payload/
+          cd build
+          zip -r Entregas.ipa Payload/
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Entregas-IPA
+          path: build/Entregas.ipa
